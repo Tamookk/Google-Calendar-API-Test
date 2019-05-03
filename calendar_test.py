@@ -10,6 +10,40 @@ from google.auth.transport.requests import Request
 # If mondifying this, delete file 'token.pickle'
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
+# Quicksort algorithm
+def quicksort(A, start, end):
+	# Check to see if sorting is necessary
+	if start < end:
+		# Begin the quicksort
+		pivot = partition(A, start, end)
+		quicksort(A, start, pivot - 1)
+		quicksort(A, pivot + 1, end)
+
+# Bulk of the algorithm
+def partition(A, start, end):
+	pivot = A[start][1]
+	l = start + 1
+	r = end
+	# Continue until the right side is done
+	while True:
+		while l <= r and A[l][1] <= pivot:
+			l += 1
+		while A[r][1] >= pivot and r >= l:
+			r -= 1
+		if r < l:
+			break
+		# Swap the two elements
+		else:
+			temp = A[l]
+			A[l] = A[r]
+			A[r] = temp
+	# Make the final swap
+	temp = A[start]
+	A[start] = A[r]
+	A[r] = temp
+	# Return the new pivot
+	return r
+
 # Main function
 def main():
 	"""
@@ -36,7 +70,7 @@ def main():
 
 	service = googleapiclient.discovery.build('calendar', 'v3', credentials=creds)
 
-	# Get calendar ids and stick them into a dict
+	# Get calendar ids and stick them into a dictionary
 	calendar_ids = {}
 	page_token = None
 	while True:
@@ -73,7 +107,9 @@ def main():
 	# Get the current time
 	now = datetime.datetime.now()
 	# Get the date tomorrow
-	tomorrow = (now + datetime.timedelta(days=2)).replace(hour=0,minute=0,second=0,microsecond=0)
+	tomorrow = (now + datetime.timedelta(days=7)).replace(hour=0,minute=0,second=0,microsecond=0)
+	# Create events list
+	events_list = []
 
 	# Grab next 10 events for each calendar
 	print("==Today's Events: " + now.strftime('%d/%m/%Y') + "==")
@@ -88,27 +124,41 @@ def main():
 		if not events:
 			continue
 
-		print("\n--" + key + "---")
 		for event in events:
 			# Get the start and end date and time (if it exists) of the event
 			try:
 				# Convert the returned strings to a datetime object
 				start = datetime.datetime.strptime(event['start']['dateTime'], '%Y-%m-%dT%H:%M:%S%z')
 				end = datetime.datetime.strptime(event['end']['dateTime'], '%Y-%m-%dT%H:%M:%S%z')
-				# Format these datetime objects into the required format
-				if (start.year == end.year) and (start.month == end.month) and (start.day == end.day):
-					time = start.strftime('%I:%M%p -> ') + end.strftime('%I:%M%p - %d/%m/%Y')
-				else:
-					time = start.strftime('%I:%M%p - %d/%m/%Y -> ') + end.strftime('%I:%M%p - %d/%m/%Y')
+				# Stick the event into the list of events
+				events_list.append([event['summary'], start, end])
 			except:
-				start = datetime.datetime.strptime(event['start']['date'], '%Y-%m-%d')
-				end = datetime.datetime.strptime(event['end']['date'], '%Y-%m-%d')
-				if (start.year == end.year) and (start.month == end.month) and (start.day == end.day):
-					time = start.strftime('%d/%m/%Y')
-				else:
-					time = start.strftime('%d/%m/%Y -> ') + end.strftime('%d/%m/%Y')
-			# Print the event info
-			print(time + "\n" + event['summary'])
+				start = datetime.datetime.strptime(event['start']['date'] + localoffset, '%Y-%m-%d%z')
+				end = datetime.datetime.strptime(event['end']['date'] + localoffset, '%Y-%m-%d%z')
+				# Stick the event into the list of events
+				events_list.append([event['summary'], start, end])
+	#print(events_list)
+	# Quicksort the list of events
+	quicksort(events_list, 0, len(events_list) - 1)
+	#print(events_list)
+	# Format the times and print the events
+	for item in events_list:
+		try:
+			# Format these datetime objects into the required format
+			if (item[1].year == item[2].year) and (item[1].month == item[2].month) and (item[1].day == item[2].day):
+				item[1] = item[1].strftime('%I:%M%p')
+				item[2] = item[2].strftime('%I:%M%p - %d/%m/%Y')
+			else:
+				item[1] = item[1].strftime('%I:%M%p - %d/%m/%Y')
+				item[2] = item[2].strftime('%I:%M%p - %d/%m/%Y')
+		except:
+			if (item[1].year == item[2].year) and (item[1].month == item[2].month) and (item[1].day == item[2].day):
+				item[1] = item[1].strftime('%d/%m/%Y')
+				item[2] = item[1]
+			else:
+				item[1] = item[1].strftime('%d/%m/%Y')
+				item[2] = item[2].strftime('%d/%m/%Y')
+		print(item[1] + " -> " + item[2] + "\n" + item[0] + "\n")
 
 if __name__ == '__main__':
 	main()

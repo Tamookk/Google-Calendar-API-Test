@@ -7,7 +7,7 @@ Practicing and messing around with Google's Calendar API in Python. Currently al
 ### Prerequisites
 * Python (I used 3.7 for this)
 * Carious API and credential thingos. See [here](https://developers.google.com/calendar/overview).
-* Various packages. Can be installed via pip  `
+* Various packages. Can be installed via pip: `
 pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib`
 
 ## Authors
