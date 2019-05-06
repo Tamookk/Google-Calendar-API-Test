@@ -137,10 +137,33 @@ def main():
 				end = datetime.datetime.strptime(event['end']['date'] + localoffset, '%Y-%m-%d%z')
 				# Stick the event into the list of events
 				events_list.append([event['summary'], start, end])
-	#print(events_list)
+
 	# Quicksort the list of events
 	quicksort(events_list, 0, len(events_list) - 1)
-	#print(events_list)
+
+	# Grouped (by date) list of events
+	grouped_events = []
+
+	# Group events by date
+	for item in events_list:
+		item_date = datetime.datetime(year=item[1].year, month=item[1].month, day=item[1].day)
+		# Check if grouped_events is greater than 0
+		if len(grouped_events) < 1:
+			# Append date and item if grouped_events is empty
+			grouped_events.append([item_date, [item]])
+		else:
+			# Check if the current item's date exists in grouped_events
+			date_exists = False
+			for day in grouped_events:
+				if day[0] == item_date:
+					# Add the event to the day
+					day[1].append(item)
+					date_exists = True
+					break
+			# Add the date and the event if the date isn't in the grouped list
+			if not date_exists:
+				grouped_events.append([item_date, [item]])
+
 	# Format the times and print the events
 	for item in events_list:
 		try:
