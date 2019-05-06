@@ -27,5 +27,8 @@ pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-
 * Google. And their quickstart for the Calendar API for Python. See [here](https://developers.google.com/calendar/quickstart/python).
 
 ## Changelog
+### 06-05-2019
+* Group and print events by date instead of by calendar ID.
+
 ### 03-05-2019
 * Initial commit.

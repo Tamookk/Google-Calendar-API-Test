@@ -112,7 +112,6 @@ def main():
 	events_list = []
 
 	# Grab next 10 events for each calendar
-	print("==Today's Events: " + now.strftime('%d/%m/%Y') + "==")
 	for key in calendar_ids:
 		# Call the calendar api
 		# Query to get events - calendar id, starting from now, 10 results, order by start time
@@ -165,23 +164,26 @@ def main():
 				grouped_events.append([item_date, [item]])
 
 	# Format the times and print the events
-	for item in events_list:
-		try:
-			# Format these datetime objects into the required format
-			if (item[1].year == item[2].year) and (item[1].month == item[2].month) and (item[1].day == item[2].day):
-				item[1] = item[1].strftime('%I:%M%p')
-				item[2] = item[2].strftime('%I:%M%p - %d/%m/%Y')
-			else:
-				item[1] = item[1].strftime('%I:%M%p - %d/%m/%Y')
-				item[2] = item[2].strftime('%I:%M%p - %d/%m/%Y')
-		except:
-			if (item[1].year == item[2].year) and (item[1].month == item[2].month) and (item[1].day == item[2].day):
-				item[1] = item[1].strftime('%d/%m/%Y')
-				item[2] = item[1]
-			else:
-				item[1] = item[1].strftime('%d/%m/%Y')
-				item[2] = item[2].strftime('%d/%m/%Y')
-		print(item[1] + " -> " + item[2] + "\n" + item[0] + "\n")
+	for item in grouped_events:
+		print("==" + item[0].strftime('%a %d/%m/%Y') + "==")
+		for event in item[1]:
+			try:
+				# Format these datetime objects into the required format
+				if (event[1].year == event[2].year) and (event[1].month == event[2].month) and (event[1].day == event[2].day):
+					event[1] = event[1].strftime('%I:%M%p')
+					event[2] = event[2].strftime('%I:%M%p')
+				else:
+					event[1] = event[1].strftime('%I:%M%p')
+					event[2] = event[2].strftime('%I:%M%p - %d/%m/%Y')
+			except:
+				if (event[1].year != event[2].year) or (event[1].month != event[2].month) or (event[1].day != event[2].day):
+					event[1] = ""
+					event[2] = event[2].strftime('%d/%m/%Y')
+				else:
+					event[1] = ""
+					event[2] = ""
+
+			print(event[1] + " -> " + event[2] + "\n" + event[0] + "\n")
 
 if __name__ == '__main__':
 	main()
